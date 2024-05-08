@@ -13,7 +13,7 @@ public class PlayerMovement : MonoBehaviour
     private SpriteRenderer sr;
     private Vector2 moveInput;
     private bool hasObjective;
-    [HideInInspector] public bool gameOver;
+    [HideInInspector] public bool gameStopped;
     [HideInInspector] public bool playingDead;
 
     // Start is called before the first frame update
@@ -23,14 +23,14 @@ public class PlayerMovement : MonoBehaviour
         sr = GetComponentInChildren<SpriteRenderer>();
         moveInput = new Vector2();
         hasObjective = false;
-        gameOver = false;
+        gameStopped = false;
         playingDead = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!gameOver)
+        if (!gameStopped && !UIManager.isPaused)
         {
             if (Input.GetKey(KeyCode.Q))
             {
@@ -56,16 +56,25 @@ public class PlayerMovement : MonoBehaviour
 
                 if (moveInput != Vector2.zero)
                 {
-                    float rotZ;
-                    Quaternion rotation = Quaternion.LookRotation(Vector3.forward, moveInput); ;
+                    Quaternion rotation = Quaternion.LookRotation(Vector3.forward, moveInput);
 
-                    if (Mathf.Sqrt(Mathf.Pow((rotation.eulerAngles.z - transform.rotation.eulerAngles.z) * Time.deltaTime * 20, 2)) < 0.5f)
-                        rotZ = rotation.eulerAngles.z;
+                    if (UIManager.smoothTurnEnabled)
+                    {
+                        float rotZ;
+
+                        if (Mathf.Sqrt(Mathf.Pow((rotation.eulerAngles.z - transform.rotation.eulerAngles.z) * Time.deltaTime * 20, 2)) < 0.5f)
+                            rotZ = rotation.eulerAngles.z;
+
+                        else
+                            rotZ = transform.rotation.eulerAngles.z + (rotation.eulerAngles.z - transform.rotation.eulerAngles.z) * Time.deltaTime * 20;
+
+                        transform.rotation = Quaternion.Euler(0, 0, rotZ);
+                    }
 
                     else
-                        rotZ = transform.rotation.eulerAngles.z + (rotation.eulerAngles.z - transform.rotation.eulerAngles.z) * Time.deltaTime * 20;
-
-                    transform.rotation = Quaternion.Euler(0, 0, rotZ);
+                    {
+                        transform.rotation = rotation;
+                    }
                 }
             }
         }
@@ -75,26 +84,34 @@ public class PlayerMovement : MonoBehaviour
         
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!gameOver)
+        if (!gameStopped && !UIManager.isPaused)
         {
             if (collision.transform.tag == "Enemy" && !playingDead)
             {
-                gameOver = true;
+                gameStopped = true;
                 gameObject.SetActive(false);
                 UIManager.Lose();
             }
 
-            if (collision.transform.tag == "Objective")
-            {
-                hasObjective = true;
-                UIManager.GetObjective(collision.gameObject);
-            }
-
             if (collision.transform.tag == "Entrance" && hasObjective)
             {
-                gameOver = true;
+                gameStopped = true;
                 UIManager.Win();
             }
         }
-    }  
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (!gameStopped && !UIManager.isPaused)
+        {
+            Debug.Log("Colliding");
+            if (collision.transform.tag == "Objective" && Input.GetKey(KeyCode.E))
+            {
+                hasObjective = true;
+                UIManager.GetObjective(collision.gameObject);
+                Debug.Log("gotcha");
+            }
+        }
+    }
 }

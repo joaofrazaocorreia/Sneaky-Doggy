@@ -12,6 +12,7 @@ public class EnemyMovement : MonoBehaviour
     public PlayerMovement player;
 
     private Rigidbody2D rb;
+    private UIManager UIManager;
     private Vector2 movement;
     private float aggroTimer;
     private float idleTimer;
@@ -22,6 +23,7 @@ public class EnemyMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        UIManager = player.UIManager;
         movement = new Vector2();
         aggroTimer = 0f;
         idleTimer = 0f;
@@ -31,7 +33,7 @@ public class EnemyMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!player.gameOver)
+        if (!player.gameStopped && !UIManager.isPaused)
         {
             Vector2 toTarget = currentTarget.position - transform.position;
 
