@@ -9,11 +9,14 @@ public class PlayerMovement : MonoBehaviour
     public UIManager UIManager;
     public Sprite defaultSprite;
     public Sprite playDeadSprite;
+    public Rigidbody2D[] enemyColliders;
 
     private Rigidbody2D rb;
     private SpriteRenderer sr;
     private Vector2 moveInput;
     private bool hasObjective;
+    private bool godmode;
+
     [HideInInspector] public bool gameStopped;
     [HideInInspector] public bool playingDead;
 
@@ -26,11 +29,22 @@ public class PlayerMovement : MonoBehaviour
         hasObjective = false;
         gameStopped = false;
         playingDead = false;
+        godmode = false;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            godmode = true;
+            foreach (Rigidbody2D r in enemyColliders)
+                r.bodyType = RigidbodyType2D.Static;
+            moveSpeed = 8f;
+            Debug.Log("Godmode");
+        }
+
+
         if (!gameStopped && !UIManager.isPaused)
         {
             if (Input.GetKey(KeyCode.Q))
@@ -87,7 +101,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!gameStopped && !UIManager.isPaused)
         {
-            if (collision.transform.tag == "Enemy" && !playingDead)
+            if (collision.transform.tag == "Enemy" && !playingDead && !godmode)
             {
                 gameStopped = true;
                 gameObject.SetActive(false);
