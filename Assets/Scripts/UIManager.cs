@@ -177,4 +177,9 @@ public class UIManager : MonoBehaviour
             go.SetActive(glowEnabled);
         }
     }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
 }
