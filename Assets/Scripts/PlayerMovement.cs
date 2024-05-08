@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public float moveSpeed = 4f;
+    public Transform playerSprite;
     public UIManager UIManager;
     public Sprite defaultSprite;
     public Sprite playDeadSprite;
@@ -62,18 +63,18 @@ public class PlayerMovement : MonoBehaviour
                     {
                         float rotZ;
 
-                        if (Mathf.Sqrt(Mathf.Pow((rotation.eulerAngles.z - transform.rotation.eulerAngles.z) * Time.deltaTime * 20, 2)) < 0.5f)
+                        if (Mathf.Sqrt(Mathf.Pow((rotation.eulerAngles.z - playerSprite.rotation.eulerAngles.z) * Time.deltaTime * 20, 2)) < 0.5f)
                             rotZ = rotation.eulerAngles.z;
 
                         else
-                            rotZ = transform.rotation.eulerAngles.z + (rotation.eulerAngles.z - transform.rotation.eulerAngles.z) * Time.deltaTime * 20;
+                            rotZ = playerSprite.rotation.eulerAngles.z + (rotation.eulerAngles.z - playerSprite.rotation.eulerAngles.z) * Time.deltaTime * 20;
 
-                        transform.rotation = Quaternion.Euler(0, 0, rotZ);
+                        playerSprite.rotation = Quaternion.Euler(0, 0, rotZ);
                     }
 
                     else
                     {
-                        transform.rotation = rotation;
+                        playerSprite.rotation = rotation;
                     }
                 }
             }
@@ -105,13 +106,24 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!gameStopped && !UIManager.isPaused)
         {
-            Debug.Log("Colliding");
-            if (collision.transform.tag == "Objective" && Input.GetKey(KeyCode.E))
+            if (collision.transform.tag == "Objective") 
             {
-                hasObjective = true;
-                UIManager.GetObjective(collision.gameObject);
-                Debug.Log("gotcha");
+                UIManager.isTouchingInteractive = true;
+
+                if (Input.GetKey(KeyCode.E))
+                {
+                    hasObjective = true;
+                    UIManager.GetObjective(collision.gameObject);
+                }
             }
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (UIManager.isTouchingInteractive) 
+        {
+            UIManager.isTouchingInteractive = false;
         }
     }
 }

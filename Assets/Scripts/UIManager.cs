@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
     public GameObject pauseMenu;
     public GameObject settingsMenu;
     public GameObject objectiveIndicator;
+    public GameObject interactiveKeyIndicator;
     public GameObject arrowsCheckmark;
     public GameObject glowCheckmark;
     public GameObject smoothTurnCheckmark;
@@ -16,6 +17,7 @@ public class UIManager : MonoBehaviour
     public GameObject[] helpingGlows;
 
     [HideInInspector] public bool isPaused;
+    [HideInInspector] public bool isTouchingInteractive;
     [HideInInspector] public bool smoothTurnEnabled;
     private bool arrowsEnabled;
     private bool glowEnabled;
@@ -23,6 +25,9 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         isPaused = pauseMenu.activeSelf;
+
+        isTouchingInteractive = false;
+        interactiveKeyIndicator.SetActive(false);
 
         arrowsEnabled = false;
         arrowsCheckmark.SetActive(false);
@@ -32,6 +37,7 @@ public class UIManager : MonoBehaviour
 
         smoothTurnEnabled = true;
         smoothTurnCheckmark.SetActive(true);
+
 
 
         if (PlayerPrefs.GetInt("Arrows", 0) == 0)
@@ -61,6 +67,15 @@ public class UIManager : MonoBehaviour
         {
             TogglePause();
         }
+
+
+        if (isTouchingInteractive)
+        {
+            interactiveKeyIndicator.SetActive(true);
+        }
+
+        else if (interactiveKeyIndicator.activeSelf)
+            interactiveKeyIndicator.SetActive(false);
     }
 
     public void Win()
